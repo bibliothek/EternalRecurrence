@@ -28,7 +28,7 @@ namespace EternalRecurrence
             var victim = GetVictim();
             var message = new Message
             {
-                text = $"<@{victim}>, it's your turn to go to Tribe Standup"
+                text = $"<@{victim}>, it is your turn to go to Tribe Standup"
             };
             var response = httpClient.PostAsJsonAsync<Message>(slackWebhookUri, message).Result;
             log.Log(LogLevel.Information, response.Content.ReadAsStringAsync().Result);
