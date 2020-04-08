@@ -15,9 +15,9 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.101
-    - name: Publish
+    - name: Build
       run: dotnet build --configuration Release --output ./output EternalRecurrence 
-    - name: 'Run Azure Functions Action'
+    - name: 'Deploy Azure Function'
       if: github.ref == 'refs/heads/master'
       uses: Azure/functions-action@v1
       id: fa
