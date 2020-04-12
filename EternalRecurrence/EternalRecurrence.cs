@@ -1,58 +1,48 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Security.Cryptography;
-using Microsoft.Azure.WebJobs;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.WebJobs;
 
 namespace EternalRecurrence
 {
     public static class EternalRecurrence
     {
-        private static Dictionary<string, string> victims = new Dictionary<string, string> {
-            {"steml", "U59F531H7"},
-            {"maber", "U1D7UQT6V"},
-            {"ivapo", "UR3C5Q1ST"},
-            {"flole", "UD3H5EV40"},
-            {"matha", "U0C3HCB7C"},
-        };
-
         private static string slackWebhookUri = Environment.GetEnvironmentVariable("SLACK_WEBHOOK_URI");
 
         private static HttpClient httpClient = new HttpClient();
 
         [FunctionName("TribeStandup")]
-        public static void TribeStandup([TimerTrigger("0 40 9 * * 1,2,3,4,5")]TimerInfo myTimer, ILogger log)
+        public static async Task TribeStandup([TimerTrigger("0 40 9 * * 1,2,3,4,5")]TimerInfo myTimer, ILogger log)
         {
-            var victim = GetVictim();
+            var victim = Victims.GetVictim();
             var message = new Message
             {
                 text = $"<@{victim}>, it is your turn to go to Tribe Standup"
             };
-            var response = httpClient.PostAsJsonAsync<Message>(slackWebhookUri, message).Result;
-            log.Log(LogLevel.Information, response.Content.ReadAsStringAsync().Result);
+            var response = await httpClient.PostAsJsonAsync<Message>(slackWebhookUri, message);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            log.Log(LogLevel.Information, responseContent);
         }
 
-        public class Message
+        [FunctionName("Retry")]
+        public static async Task<IActionResult> Retry(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+            ILogger log)
         {
-            public string text { get; set; }
-        }
-
-        private static string GetVictim()
-        {
-            var i = Math.Abs(GetRandom()) % victims.Count;
-            return victims.Values.ToArray()[i];
-        }
-
-        private static int GetRandom()
-        {
-            using (RNGCryptoServiceProvider rg = new RNGCryptoServiceProvider())
+            var victim = Victims.GetVictim();
+            var message = new Message
             {
-                byte[] rno = new byte[5];
-                rg.GetBytes(rno);
-                return BitConverter.ToInt32(rno, 0);
-            }
+                text = $"Repetition is a form of change. <@{victim}>, you're up!"
+            };
+            var response = await httpClient.PostAsJsonAsync<Message>(slackWebhookUri, message);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            log.Log(LogLevel.Information, responseContent);
+
+            return new OkResult();
         }
     }
 }
