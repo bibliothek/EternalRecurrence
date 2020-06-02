@@ -10,7 +10,7 @@ internal static class Victims
             {"steml", "U59F531H7"},
             {"ivapo", "UR3C5Q1ST"},
             {"flole", "UD3H5EV40"},
-            {"matha", "U0C3HCB7C"},
+            {"krust", "U0C9MR0P9"},
         };
 
     internal static string GetVictim()
