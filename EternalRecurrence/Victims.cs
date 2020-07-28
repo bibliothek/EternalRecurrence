@@ -11,6 +11,7 @@ internal static class Victims
             {"ivapo", "UR3C5Q1ST"},
             {"flole", "UD3H5EV40"},
             {"krust", "U0C9MR0P9"},
+            {"maber", "U1D7UQT6V"}
         };
 
     internal static string GetVictim()
